@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rampr"
+version = "0.1.0"
+authors = [
+  { name="Your Name", email="your.email@example.com" },
+]
+description = "Regional Analysis and Modeling for the Perennial Revolution"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Agriculture",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "geopandas",
+    "seaborn",
+    "tobler",
+    "pandas",
+    "matplotlib"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/your-username/rampr"
+"Bug Tracker" = "https://github.com/your-username/rampr/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["rampr*"]
