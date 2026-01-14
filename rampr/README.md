@@ -11,25 +11,6 @@ The "Perennial Revolution" requires more than just biological breakthroughs; it 
 * **Value Chain Impacts:** How regional input-output (I-O) tables shift as new perennial industries emerge.
 * **Regional Modeling:** Granular analysis at the county, state, or watershed level.
 
-## 📂 Repository Structure
-
-```text
-RAMPR/
-├── data/                 # Metadata and processing scripts
-│   ├── raw/              # Links/scripts to fetch raw USDA/BEA data
-│   └── processed/        # Standardized regional economic profiles
-├── docs/                 # Methodology and structural equation documentation
-├── notebooks/            # EDA and case studies (e.g., Midwest Kernza Transition)
-├── rampr/                # Core Python package
-│   ├── data_io.py        # Data ingestion from API/local sources
-│   ├── modeling.py      # Structural analysis and I-O logic
-│   ├── spatial.py       # Regional mapping and GIS integration
-│   └── utils.py         # Helper functions
-├── tests/                # Unit tests for economic consistency
-├── LICENSE               # Apache 2.0 or MIT
-├── pyproject.toml        # Build system and dependencies
-└── README.md             # Project overview
-```
 
 ## 🚀 Quick Start
 Installation
@@ -41,19 +22,6 @@ cd rampr
 pip install -e .
 ```
 
-## Basic Usage
-```
-import rampr
-
-# Initialize a model for a specific FIPS code (e.g., a region in Minnesota)
-model = rampr.RegionalModel(region_id="27") 
-
-# Apply a transition scenario: 15% conversion to perennial grains
-scenario = model.apply_transition(perennial_share=0.15)
-
-# View the structural impact on regional employment
-print(scenario.employment_multiplier())
-```
 
 ## 📊 Data Sources & Integration
 RAMPR integrates multiple open-source data streams to build a comprehensive regional profile. We utilize a multi-layer approach to connect ecological change to economic outcomes.
@@ -66,6 +34,8 @@ SSURGO/STATSGO2: For soil productivity and carbon sequestration potential.
 
 Note: Raw data files are not stored in this repository due to size. Use rampr.download_sources() to fetch data to your local machine.
 
+
+While data sets are from goverment agencies, we also store versions on zendo to avoid bit-rot and to increase reproducibility.
 
 ## 🤝 Contributing
 We welcome contributions from economists, agronomists, and developers!
