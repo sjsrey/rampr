@@ -29,8 +29,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/<your-org-or-user>/rampr"
-Issues = "https://github.com/<your-org-or-user>/rampr/issues"
+Homepage = "https://github.com/sjsrey/rampr"
+Issues = "https://github.com/sjsrey/rampr/issues"
 
 # Optional CLI, if you add it
 # [project.scripts]
