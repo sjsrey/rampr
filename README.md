@@ -17,7 +17,7 @@ Installation
 Ensure you have Python 3.9+ installed. It is recommended to use a virtual environment.
 
 ```
-git clone [https://github.com/your-username/rampr.git](https://github.com/your-username/rampr.git)
+git clone [https://github.com/sjsrey/rampr.git](https://github.com/sjsrey/rampr.git)
 cd rampr
 pip install -e .
 ```
