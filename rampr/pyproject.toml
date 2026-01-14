@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rampr"
+version = "0.1.0"
+description = "Regional analysis and modeling for the perennial revolution"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Sergio Rey" }
+]
+dependencies = [
+  "platformdirs>=4",
+  "pooch>=1.8",
+  "numpy",
+  "pandas",
+  "openpyxl>3.1",
+]
+
+# Optional but recommended
+keywords = ["regional science", "input-output", "perennial grains", "economics"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: BSD License",
+  "Intended Audience :: Science/Research",
+]
+
+[project.urls]
+Homepage = "https://github.com/<your-org-or-user>/rampr"
+Issues = "https://github.com/<your-org-or-user>/rampr/issues"
+
+# Optional CLI, if you add it
+# [project.scripts]
+# rampr-data = "rampr.datasets.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+# Include your registry files inside the wheel
+"rampr.datasets" = ["_registry/*.txt"]
+
