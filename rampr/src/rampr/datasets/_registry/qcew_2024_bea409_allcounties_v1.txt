@@ -1,0 +1,3 @@
+# filename  known_hash  url
+QCEW_All_0_All-409.zip  md5:3f4a9678a6052c4ece50c0bb1b9f2b59  https://zenodo.org/records/18248513/files/QCEW_All_0_All-409.zip?download=1
+
