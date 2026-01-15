@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -55,8 +55,6 @@ def _read_use_make(
         )
     use = use_sheets[str(year)]
 
-    # These offsets are taken from your current script. Consider parameterizing
-    # if BEA changes templates.
     flows = use.values[5:, 2:]
     row_codes = use.values[5:, 0]
     col_labels = use.iloc[4].values[2:]
@@ -118,7 +116,7 @@ def build_national_io_from_excels(
         use_xlsx, make_xlsx, year=year
     )
 
-    # Your script slices assume the first n_commodities rows are commodities
+    # We assume the first n_commodities rows are commodities
     # and first n_industries columns correspond to industries (plus potential extras).
     U = use_df.values[:n_commodities, :]
 
