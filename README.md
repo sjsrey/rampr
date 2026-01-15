@@ -35,7 +35,7 @@ SSURGO/STATSGO2: For soil productivity and carbon sequestration potential.
 Note: Raw data files are not stored in this repository due to size. Use rampr.download_sources() to fetch data to your local machine.
 
 
-While data sets are from goverment agencies, we also store versions on zendo to avoid bit-rot and to increase reproducibility.
+While data sets are from government agencies, we also store versions on zendo to avoid bit-rot and to increase reproducibility.
 
 ## 🤝 Contributing
 We welcome contributions from economists, agronomists, and developers!
