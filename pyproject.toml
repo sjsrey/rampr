@@ -36,8 +36,9 @@ Issues = "https://github.com/sjsrey/rampr/issues"
 # [project.scripts]
 # rampr-data = "rampr.datasets.cli:main"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
+[tool.setuptools.packages.find]
+where = ["."]
+include =["rampr*"]
 
 [tool.setuptools.package-data]
 # Include your registry files inside the wheel
