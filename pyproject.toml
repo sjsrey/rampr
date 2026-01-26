@@ -43,3 +43,8 @@ package-dir = {"" = "src"}
 # Include your registry files inside the wheel
 "rampr.datasets" = ["_registry/*.txt"]
 
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
