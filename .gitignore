@@ -1,5 +1,29 @@
+# --- Python bytecode / caches ---
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Virtualenvs / environments ---
+.venv/
+venv/
+env/
+env-old.yml
+
+# --- Packaging artifacts ---
+*.egg-info/
+build/
+dist/
+
+# --- OS / editor junk ---
 .DS_Store
-rampr/src/rampr.egg-info
+Thumbs.db
+
+# --- Project-specific ignores (from your list) ---
+data/raw/employment/
+
 rampr/bls.md
 rampr/bls.org
 rampr/io.html
@@ -8,9 +32,8 @@ rampr/io.pdf
 rampr/nat_io.py
 rampr/qcew.py
 rampr/specs.py
-rampr/t
-data/raw/employment
-env-old.yml
+rampr/t/
+
 ercmodel.md
 io.org
 qcew.md

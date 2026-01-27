@@ -1,5 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
+import rampr.datasets as ds
 
 
 def repo_root() -> Path:
@@ -7,7 +8,7 @@ def repo_root() -> Path:
     Get out of the current python package directory to rampr directory
 
     """
-    return Path(__file__).resolve().parents[3]
+    return Path(__file__).resolve().parents[2]
 
 
 def crosswalk_dir() -> Path:
@@ -42,14 +43,17 @@ def qcew_data_dir() -> Path:
     """
     <repo>/rampr/archive/data/raw
     """
-    return repo_root() / "archive" / "data" / "raw"/"employment"
+    return repo_root() / "archive" / "data" / "raw" / "employment"
 
 
 def qcew_all_csv_path(filename: str = "QCEW_All_0_All.csv") -> Path:
     """
     Path to QCEW_All_0_All.csv in the archive.
     """
-    p = qcew_data_dir() / filename
+    p = ds.get_path_by_filename(filename)
+    print(p)
+    # p = qcew_data_dir() / filename
     if not p.exists():
         raise FileNotFoundError(f"QCEW CSV file not found: {p}")
     return p
+
