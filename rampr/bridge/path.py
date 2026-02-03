@@ -46,14 +46,10 @@ def qcew_data_dir() -> Path:
     return repo_root() / "archive" / "data" / "raw" / "employment"
 
 
+
 def qcew_all_csv_path(filename: str = "QCEW_All_0_All.csv") -> Path:
-    """
-    Path to QCEW_All_0_All.csv in the archive.
-    """
-    p = ds.get_path_by_filename(filename)
-    print(p)
-    # p = qcew_data_dir() / filename
+    repo_root = Path(__file__).resolve().parents[2]  
+    p = repo_root / "archive" / "data" / "raw" / "employment" / filename
     if not p.exists():
         raise FileNotFoundError(f"QCEW CSV file not found: {p}")
     return p
-

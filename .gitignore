@@ -37,3 +37,6 @@ rampr/t/
 ercmodel.md
 io.org
 qcew.md
+
+# -- jupyter 
+*.ipynb_checkpoints
