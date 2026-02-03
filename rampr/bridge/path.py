@@ -1,59 +1,53 @@
 from __future__ import annotations
 from pathlib import Path
-import rampr.datasets as ds
 
 
-def repo_root() -> Path:
+def data_path(
+    name: str,
+    *,
+    version: str = "v1",
+    filename: str | None = None,
+) -> Path:
     """
-    Get out of the current python package directory to rampr directory
+    One function for all paths.
 
+    name options:
+      - "repo_root"
+      - "crosswalk_dir"
+      - "qcew_to_io_crosswalk"
+      - "bea_402_sector_codes"
+      - "qcew_data_dir"
+      - "qcew_all_csv"
     """
-    return Path(__file__).resolve().parents[2]
+    repo = Path(__file__).expanduser().resolve().parents[2]
 
+    if name == "repo_root":
+        return repo
 
-def crosswalk_dir() -> Path:
-    """
-    <repo>/rampr/data/crosswalks/qcew_to_io
-    """
-    return repo_root() / "rampr" / "data" / "crosswalks" / "qcew_to_io"
+    if name == "crosswalk_dir":
+        return repo / "rampr" / "data" / "crosswalks" / "qcew_to_io"
 
+    if name == "qcew_to_io_crosswalk":
+        p = data_path("crosswalk_dir") / f"qcew_to_io_{version}.csv"
+        if not p.exists():
+            raise FileNotFoundError(f"Crosswalk not found for version={version!r}: {p}")
+        return p
 
-def qcew_to_io_crosswalk_path(version: str = "v1") -> Path:
-    """
-    Example:
-      version="v1" -> qcew_to_io_v1.csv
-    """
-    p = crosswalk_dir() / f"qcew_to_io_{version}.csv"
-    if not p.exists():
-        raise FileNotFoundError(f"Crosswalk not found for version={version!r}: {p}")
-    return p
+    if name == "bea_402_sector_codes":
+        fname = filename or "bea_402_sector_codes.txt"
+        p = data_path("crosswalk_dir") / fname
+        if not p.exists():
+            raise FileNotFoundError(f"BEA 402 sector codes file not found: {p}")
+        return p
 
+    if name == "qcew_data_dir":
+        return repo / "archive" / "data" / "raw" / "employment"
 
-def bea_402_sector_codes_path(filename: str = "bea_402_sector_codes.txt") -> Path:
-    """
-    Resolve the BEA 402 codes file stored alongside the crosswalk in the same directory.
-    """
-    p = crosswalk_dir() / filename
-    if not p.exists():
-        raise FileNotFoundError(f"BEA 402 sector codes file not found: {p}")
-    return p
+    if name == "qcew_all_csv":
+        fname = filename or "QCEW_All_0_All.csv"
+        p = data_path("qcew_data_dir") / fname
+        if not p.exists():
+            raise FileNotFoundError(f"QCEW CSV file not found: {p}")
+        return p
 
-
-def qcew_data_dir() -> Path:
-    """
-    <repo>/rampr/archive/data/raw
-    """
-    return repo_root() / "archive" / "data" / "raw" / "employment"
-
-
-def qcew_all_csv_path(filename: str = "QCEW_All_0_All.csv") -> Path:
-    """
-    Path to QCEW_All_0_All.csv in the archive.
-    """
-    p = ds.get_path_by_filename(filename)
-    print(p)
-    # p = qcew_data_dir() / filename
-    if not p.exists():
-        raise FileNotFoundError(f"QCEW CSV file not found: {p}")
-    return p
-
+    raise ValueError(f"Unknown path name: {name!r}")

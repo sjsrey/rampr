@@ -214,7 +214,7 @@ def build_crosswalk(
 
 
 
-def load_402_sector_codes(sector_file: Union[str, Path]) -> list[str]:
+def load_402_sector_codes(sector_file: Union[str, Path,pd.DataFrame]) -> list[str]:
     """
     Load the BEA 402 IO sector codes from a text file.
 

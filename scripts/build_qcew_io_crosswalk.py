@@ -1,40 +1,35 @@
-from rampr.bridge.io_bridge import build_crosswalk, align_io_to_bea_402
-from rampr.bridge.path import qcew_to_io_crosswalk_path, bea_402_sector_codes_path, qcew_all_csv_path
+from rampr.bridge import build_crosswalk, align_io_to_bea_402, data_path, impute_missing_sectors
 from rampr.datasets import fetch
 
 # Fetch QCEW 409 data from zenodo
-print("n\Fetching QCEW 409 data...")
-qcew_409_files = fetch(
-    "qcew_2024_bea409_allcounties",
-    version="v1"
-)
+print("\nFetching QCEW 409 data...")
+qcew_409_files = fetch("qcew_2024_bea409_allcounties", version="v1")
 qcew_409_csv = qcew_409_files[0]
 
-# Get QCEW_All_0_All CSV data from local archive directory ,
-# this data was not on zenodo
-qcew_all_csv = qcew_all_csv_path()
+# Local QCEW_All_0_All CSV (not on zenodo)
+qcew_all_csv = data_path("qcew_all_csv")
 
-# Build crosswalk 
 print("\nBuilding crosswalk...")
 cw = build_crosswalk(
     qcew_all_csv,
     qcew_409_csv,
-    qcew_to_io_crosswalk_path()
+    data_path("qcew_to_io_crosswalk", version="v1"),
 )
 
+print("\nAligning to BEA 402 and imputing missing values together...")
+bea_codes = data_path("bea_402_sector_codes")          # default filename
+missing_sectors_csv = data_path("crosswalk_dir") / "missing_sectors.csv"  # if you didn't add a key
 
-print(f"Bridge shape: {cw.bridge_df.shape}")
-print(f"IO aggregated shape: {cw.io_agg_df.shape}")
+df_bridge = align_io_to_bea_402(io_agg_df=cw.io_agg_df, codes_file=bea_codes)
+df_imputation = impute_missing_sectors(df_bridge, missing_sectors_csv)
+df_final_bridge = align_io_to_bea_402(df_imputation, codes_file=bea_codes)
 
-# Align to BEA 402 to make sure any area code will have 402 sectors to match io
-# this output gives the actual bridge output
-print("\nAligning to BEA 402...")
-df_bridge_output = align_io_to_bea_402(io_agg_df=cw.io_agg_df, codes_file=bea_402_sector_codes_path())
+# checking shape to see they match 402 by filtering with the area_fips
+print("\nSan Diego")
+san_diego = "06073"
+print(df_final_bridge[df_final_bridge["area_fips"] == san_diego].shape)
 
-# save
-#df_bridge_output.to_csv('bridge_crosswalk.csv', index = False)
+# Save the final bridge with imputation
+output_path = data_path("repo_root") / "bridge.csv"
+df_final_bridge.to_csv(output_path, index=False)
 
-# This give non unique numbers of 397 
-print(f"\nDone! Aligned {len(df_bridge_output)} rows with {df_bridge_output['io_sector'].nunique()} unique IO sectors")
-print(f"\nFirst few rows:")
-print(df_bridge_output.head())
