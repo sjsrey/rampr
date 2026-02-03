@@ -40,3 +40,4 @@ qcew.md
 
 # -- jupyter 
 *.ipynb_checkpoints
+*.__pycache__
