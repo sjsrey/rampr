@@ -1,5 +1,8 @@
 from importlib.metadata import version as _version
 
+from .bridge import build_crosswalk
+
+
 __all__ = ["__version__"]
 
 try:
