@@ -204,7 +204,7 @@ def build_crosswalk(
     io_agg = pd.concat([io_agg_weighted, fill_rows], ignore_index=True)
     io_agg = io_agg.drop_duplicates(subset=key_cols, keep="first")
 
-    # final ordering (exactly what you requested)
+    # final ordering 
     io_agg = io_agg[
         ["io_sector", "io_label", "year", "area_fips", "tap_estabs_count", "tap_wages_est_3", "tap_emplvl_est_3"]
     ].copy()
@@ -214,7 +214,7 @@ def build_crosswalk(
 
 
 
-def load_402_sector_codes(sector_file: Union[str, Path]) -> list[str]:
+def load_402_sector_codes(sector_file: Union[str, Path,pd.DataFrame]) -> list[str]:
     """
     Load the BEA 402 IO sector codes from a text file.
 
@@ -271,7 +271,7 @@ def align_io_to_bea_402(
     io_agg_df: pd.DataFrame,
     codes_file: Union[str, Path],
     *,
-    keep_all_codes: bool = False,
+    keep_all_codes: bool = True,
 ) -> pd.DataFrame:
     """
     Align io_agg_df to the BEA 402 IO sector code universe defined in codes_file.
@@ -302,7 +302,7 @@ def align_io_to_bea_402(
     #Keep only allowed codes discard anything else
     aligned = df[df["io_sector"].isin(codes_set)].copy()
 
-    #Force io_sector to be an ordered categorical 
+    # forcing io_sector to be an ordered categorical 
     aligned["io_sector"] = pd.Categorical(
         aligned["io_sector"], categories=codes, ordered=True
     )

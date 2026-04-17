@@ -103,7 +103,7 @@ The following sectors are missing and not present in the QCEW sectors:
     '333314': 'Optical instrument and lens manufacturing',
     '333316': 'Photographic and photocopying equipment manufacturing',
     '335911': 'Storage battery manufacturing',
-    '335912': 'Primary battery manufacturing',
+    '336112': 'Light truck and utility vehicle manufacturing',
     '515200': 'Cable and other subscription programming'
 ]
 ```
