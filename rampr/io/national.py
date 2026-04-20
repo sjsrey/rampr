@@ -151,8 +151,8 @@ def build_national_io_from_excels(
 
 
 def read_use_make():
-    pth = "../data/raw/io"
-    use = pd.read_excel(pth+"/IOUse_After_Redefinitions_PRO_Detail.xlsx",
+    pth = Path(__file__).resolve().parent.parent.parent / "data" / "raw" / "io"
+    use = pd.read_excel(pth / "IOUse_After_Redefinitions_PRO_Detail.xlsx",
                         sheet_name='2017',
                         skiprows=[0,1,2,3])
     use = use.iloc[1:].reset_index(drop=True)
@@ -161,7 +161,7 @@ def read_use_make():
     )
     
     
-    make = pd.read_excel(pth+"/IOMake_After_Redefinitions_PRO_Detail.xlsx",
+    make = pd.read_excel(pth / "IOMake_After_Redefinitions_PRO_Detail.xlsx",
                         sheet_name='2017',
                         skiprows=[0,1,2,3])
     make = make.iloc[1:].reset_index(drop=True)
