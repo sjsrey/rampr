@@ -1,0 +1,340 @@
+#+TITLE: Documenting BLS Employment Data
+#+HTML_HEAD_EXTRA: <style>
+#+HTML_HEAD_EXTRA: :root { counter-reset: global-linenum; }
+#+HTML_HEAD_EXTRA:
+#+HTML_HEAD_EXTRA: pre.src {
+#+HTML_HEAD_EXTRA:   position: relative;
+#+HTML_HEAD_EXTRA:   padding-left: 3em;
+#+HTML_HEAD_EXTRA: }
+#+HTML_HEAD_EXTRA:
+#+HTML_HEAD_EXTRA: pre.src .code-line {
+#+HTML_HEAD_EXTRA:   display: block;
+#+HTML_HEAD_EXTRA:   counter-increment: global-linenum;
+#+HTML_HEAD_EXTRA: }
+#+HTML_HEAD_EXTRA:
+#+HTML_HEAD_EXTRA: pre.src .code-line::before {
+#+HTML_HEAD_EXTRA:   content: counter(global-linenum);
+#+HTML_HEAD_EXTRA:   position: absolute;
+#+HTML_HEAD_EXTRA:   left: 0;
+#+HTML_HEAD_EXTRA:   width: 2.5em;
+#+HTML_HEAD_EXTRA:   text-align: right;
+#+HTML_HEAD_EXTRA:   color: #999;
+#+HTML_HEAD_EXTRA: }
+#+HTML_HEAD_EXTRA: </style>
+
+#+HTML_HEAD_EXTRA: <script>
+#+HTML_HEAD_EXTRA: document.addEventListener("DOMContentLoaded", function () {
+#+HTML_HEAD_EXTRA:   document.querySelectorAll("pre.src").forEach(function (pre) {
+#+HTML_HEAD_EXTRA:     // trim junk
+#+HTML_HEAD_EXTRA:     const html = pre.innerHTML.replace(/^\s*\n/, "").replace(/\s*$/, "");
+#+HTML_HEAD_EXTRA:     const lines = html.split("\n");
+#+HTML_HEAD_EXTRA:
+#+HTML_HEAD_EXTRA:     const wrapped = lines.map(function (line) {
+#+HTML_HEAD_EXTRA:       const content = line === "" ? "&nbsp;" : line;
+#+HTML_HEAD_EXTRA:       return "<span class='code-line'>" + content + "</span>";
+#+HTML_HEAD_EXTRA:     }).join("");   // IMPORTANT: no extra newlines
+#+HTML_HEAD_EXTRA:
+#+HTML_HEAD_EXTRA:     pre.innerHTML = wrapped;
+#+HTML_HEAD_EXTRA:   });
+#+HTML_HEAD_EXTRA: });
+#+HTML_HEAD_EXTRA: </script>
+
+
+* Quarterly Census of Employment and Wages (QCEW)
+:PROPERTIES:
+:ID:       a8fcb2e5-ff6c-4dbb-aabf-5aca7f10274f
+:END:
+
+https://www.bls.gov/news.release/cewqtr.nr0.htm#
+
+
+
+api: https://www.bls.gov/cew/additional-resources/open-data/csv-data-slices.htm
+ 
+** reader
+:PROPERTIES:
+:ID:       3814d4bb-93b1-4167-836d-fb6c6591cb02
+:END:
+https://github.com/TrentLThompson/qcew
+
+#+begin_src python :session qcew :results output
+import qcew
+
+  
+data = qcew.get_qcew_data(
+    year="2020",
+    annual=False,
+    fields=None
+)
+#+end_src
+
+#+RESULTS:
+
+
+#+begin_src python :session qcew :results output
+# Get annual average employment and pay data for the United States from 2001 to 2021.
+data = qcew.get_qcew_data_slice(
+    slice_type="area",
+    qcew_codes=["US000"],
+    years=[str(i) for i in range(2001, 2022)],
+    annual_data=True,
+    fields=[
+        "area_fips",
+        "own_code",
+        "industry_code",
+        "year",
+        "disclosure_code",
+        "annual_avg_emplvl",
+        "avg_annual_pay"
+        ]
+    )
+#+end_src
+
+#+RESULTS:
+
+
+#+begin_src python :session qcew :results output
+import requests
+import pandas as pd
+from io import StringIO
+
+def download_qcew_state_year(state_area_code: str, year: int, 
+                              annual: bool = True) -> pd.DataFrame:
+    """
+    Download and return a QCEW CSV slice for a given state and year.
+
+    Parameters
+    ----------
+    state_area_code : str
+        The 5-digit BLS area code for the state (e.g., '26000' for Michigan).
+    year : int
+        Four-digit year (e.g., 2024).
+    annual : bool
+        If True, fetch the Annual-Average data (quarter 'A'). Otherwise
+        you can specify a quarterly slice (1–4).
+
+    Returns
+    -------
+    pandas.DataFrame
+        A DataFrame containing the requested QCEW slice.
+
+    Raises
+    ------
+    HTTPError
+        If the request failed.
+    """
+    # The BLS open data is archived by 'quarter'; for annual it's quarter 'A' ≡ 1
+    quarter = "1" if annual else "1"
+
+    # Construct the URL based on the BLS CSV slice location
+    url = f"https://data.bls.gov/cew/data/api/{year}/{quarter}/area/{state_area_code}.csv"
+    
+    # Retrieve the CSV data
+    response = requests.get(url)
+    response.raise_for_status()
+
+    # Parse the CSV text into a Pandas DataFrame
+    df = pd.read_csv(StringIO(response.text))
+    return df
+
+# Example Usage
+if __name__ == "__main__":
+    # Example: California (area code '06000' for annual-average)
+    state_code = "06000"
+    year = 2023
+    df_state = download_qcew_state_year(state_code, year)
+    print(df_state.head())
+
+  
+#+end_src
+
+#+RESULTS:
+:    area_fips  own_code  ... oty_avg_wkly_wage_chg  oty_avg_wkly_wage_pct_chg
+: 0       6000         0  ...                    92                        5.6
+: 1       6000         1  ...                   282                       16.9
+: 2       6000         1  ...                  3660                      181.7
+: 3       6000         1  ...                  3660                      181.7
+: 4       6000         1  ...                   281                       16.8
+: 
+: [5 rows x 42 columns]
+
+
+#+begin_src python :session qcew :results output
+  import requests
+  import pandas as pd
+  from io import StringIO
+
+  def load_qcew_area_codes(csv_path: str) -> pd.DataFrame:
+      """
+      Load the full QCEW area codes CSV (from BLS Area Titles).
+      The CSV must contain columns for area_code and area_title.
+
+      Example source: 
+        https://www.bls.gov/cew/classifications/areas/qcew-area-titles.htm
+      """
+      return pd.read_csv(csv_path, dtype=str)
+
+  def get_county_codes_for_state(area_df: pd.DataFrame, state_fips: str) -> pd.DataFrame:
+      """
+      Filter area codes for counties belonging to a specific state.
+      BLS county area codes have 5 total characters:
+        first 2 = state FIPS, next 3 = county FIPS.
+      """
+      mask = area_df['area_fips'].str.startswith(state_fips) & (area_df['area_fips'].str[2:] != "000")
+      return area_df.loc[mask].copy()
+
+  def download_qcew_area(year: int, area_code: str, annual: bool = True) -> pd.DataFrame:
+      """
+      Download the QCEW CSV slice for a given year and specific area code.
+      """
+      quarter = "1" if annual else "1"
+      url = f"https://data.bls.gov/cew/data/api/{year}/{quarter}/area/{area_code}.csv"
+      response = requests.get(url)
+      response.raise_for_status()
+      df = pd.read_csv(StringIO(response.text), dtype=str)
+      return df
+
+  def download_all_counties_for_state(area_codes_csv: str, state_fips: str, year: int) -> pd.DataFrame:
+      """
+      Download QCEW data for all counties in a state for a given year.
+
+      Parameters
+      ----------
+      area_codes_csv : str
+          Path to the full QCEW area codes CSV (local file).
+      state_fips : str
+          2-digit state FIPS code (e.g., "06" = California).
+      year : int
+          Calendar year to download (e.g., 2024).
+
+      Returns
+      -------
+      pandas.DataFrame
+          Combined QCEW employment/wage records for all counties.
+      """
+      # Load the master area code list
+      area_df = load_qcew_area_codes(area_codes_csv)
+
+      # Filter for county codes in this state (exclude statewide code)
+      county_df = get_county_codes_for_state(area_df, state_fips)
+
+      combined = []
+      for _, row in county_df.iterrows():
+          code = row['area_fips']
+          name = row['area_title']
+          print(f"Downloading {name} ({code})…")
+          try:
+              df_county = download_qcew_area(year, code)
+              df_county['county_name'] = name
+              combined.append(df_county)
+          except Exception as e:
+              print(f"Failed {code}: {e}")
+
+      return pd.concat(combined, ignore_index=True)
+
+  # Example usage
+  if __name__ == "__main__":
+      datapath="../data/raw/employment/"
+      area_codes_file = datapath+"area-titles-csv.csv"  # downloaded BLS area code CSV
+      state_fips_code = "06"  # California
+      year_to_fetch = 2024
+      df_all_counties = download_all_counties_for_state(area_codes_file, state_fips_code, year_to_fetch)
+      print(df_all_counties.head())
+      fname = f"{datapath}{state_fips_code}_{year_to_fetch}.csv"
+      df_all_counties.to_csv(fname)
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Downloading Alameda County, California (06001)…
+Downloading Alpine County, California (06003)…
+Downloading Amador County, California (06005)…
+Downloading Butte County, California (06007)…
+Downloading Calaveras County, California (06009)…
+Downloading Colusa County, California (06011)…
+Downloading Contra Costa County, California (06013)…
+Downloading Del Norte County, California (06015)…
+Downloading El Dorado County, California (06017)…
+Downloading Fresno County, California (06019)…
+Downloading Glenn County, California (06021)…
+Downloading Humboldt County, California (06023)…
+Downloading Imperial County, California (06025)…
+Downloading Inyo County, California (06027)…
+Downloading Kern County, California (06029)…
+Downloading Kings County, California (06031)…
+Downloading Lake County, California (06033)…
+Downloading Lassen County, California (06035)…
+Downloading Los Angeles County, California (06037)…
+Downloading Madera County, California (06039)…
+Downloading Marin County, California (06041)…
+Downloading Mariposa County, California (06043)…
+Downloading Mendocino County, California (06045)…
+Downloading Merced County, California (06047)…
+Downloading Modoc County, California (06049)…
+Downloading Mono County, California (06051)…
+Downloading Monterey County, California (06053)…
+Downloading Napa County, California (06055)…
+Downloading Nevada County, California (06057)…
+Downloading Orange County, California (06059)…
+Downloading Placer County, California (06061)…
+Downloading Plumas County, California (06063)…
+Downloading Riverside County, California (06065)…
+Downloading Sacramento County, California (06067)…
+Downloading San Benito County, California (06069)…
+Downloading San Bernardino County, California (06071)…
+Downloading San Diego County, California (06073)…
+Downloading San Francisco County, California (06075)…
+Downloading San Joaquin County, California (06077)…
+Downloading San Luis Obispo County, California (06079)…
+Downloading San Mateo County, California (06081)…
+Downloading Santa Barbara County, California (06083)…
+Downloading Santa Clara County, California (06085)…
+Downloading Santa Cruz County, California (06087)…
+Downloading Shasta County, California (06089)…
+Downloading Sierra County, California (06091)…
+Downloading Siskiyou County, California (06093)…
+Downloading Solano County, California (06095)…
+Downloading Sonoma County, California (06097)…
+Downloading Stanislaus County, California (06099)…
+Downloading Sutter County, California (06101)…
+Downloading Tehama County, California (06103)…
+Downloading Trinity County, California (06105)…
+Downloading Tulare County, California (06107)…
+Downloading Tuolumne County, California (06109)…
+Downloading Ventura County, California (06111)…
+Downloading Yolo County, California (06113)…
+Downloading Yuba County, California (06115)…
+Downloading Unknown Or Undefined, California (06999)…
+  area_fips own_code  ... oty_avg_wkly_wage_pct_chg                 county_name
+0     06001        0  ...                       2.5  Alameda County, California
+1     06001        1  ...                       3.7  Alameda County, California
+2     06001        1  ...                       3.7  Alameda County, California
+3     06001        1  ...                      -0.6  Alameda County, California
+4     06001        1  ...                       9.0  Alameda County, California
+
+[5 rows x 43 columns]
+#+end_example
+
+* Tapestry
+
+I found a very nice project [[https://tapestry.nkn.uidaho.edu/][Tapestry]] which actually estimated all the QCEW data.
+I downloaded 2024 from their website.
+
+Data goes back annually to 2001!
+
+
+#+begin_src python :session qcew :results output
+  all_df = pd.read_csv("../data/raw/employment/QCEW_All_0_All.csv")
+#+end_src
+
+#+RESULTS:
+
+They have different sector profiles. The previous one was "NAICS 6-Digit".
+
+#+begin_src python :session qcew :results output
+  all_df = pd.read_csv("../data/raw/employment/QCEW_All_409.csv")
+#+end_src
+
+#+RESULTS:
+

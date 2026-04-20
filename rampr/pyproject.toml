@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rampr"
+version = "0.1.0"
+description = "Regional analysis and modeling for the perennial revolution"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+authors = [
+  { name = "Sergio Rey" }
+]
+dependencies = [
+  "platformdirs>=4",
+  "numpy",
+  "pandas",
+  "openpyxl>3.1",
+]
+
+keywords = ["regional science", "input-output", "perennial grains", "economics"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Science/Research",
+]
+
+[project.urls]
+Homepage = "https://github.com/sjsrey/rampr"
+Issues = "https://github.com/sjsrey/rampr/issues"
+
+[tool.setuptools.packages.find]
+include = ["rampr*"]
+exclude = ["data*", "scripts*", "tests*"]
